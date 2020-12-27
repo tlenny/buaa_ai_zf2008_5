@@ -28,7 +28,7 @@ async def knowledge_add(knowledge: Knowledge):
     # 如何已经存在就不用再添加了
     result = db.select(conn, "select * from t_code where name = ?", (knowledge.name,))
     if result is not None:
-        return {"code": "-1", "message": "name is exist, please change a new one"}
+        return {"code": "-1", "message": "the name is already exist, please change a new one"}
     db.execute(conn, "insert into t_code(name) values (?)", (knowledge.name,))
     db.close(conn)
     return {"code": "0", "message": "success"}
@@ -95,7 +95,7 @@ async def rule_add(rule: Rule):
     # 如何已经存在就不用再添加了
     result = db.select(conn, "select * from t_rule where name = ?", (rule.name,))
     if result is not None:
-        return {"code": "-1", "message": "name is exist, please change a new one"}
+        return {"code": "-1", "message": "the name is already exist, please change a new one"}
     db.execute(conn, "insert into t_rule(name, position, rule) values (?, ?, ?)", (rule.name, rule.position, rule.rule))
     db.close(conn)
     return {"code": "0", "message": "success"}
