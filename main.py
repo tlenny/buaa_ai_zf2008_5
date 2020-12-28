@@ -168,7 +168,7 @@ async def rule_delete(rule: Rule):
 async def rule_all():
     conn = db.conn()
     # 查询全部代码
-    result = db.many(conn, "select * from t_rule", ())
+    result = db.many(conn, "select * from t_rule order by position", ())
     rows = []
     if result is not None:
         for row in result:
@@ -187,20 +187,82 @@ class SubmitRule(BaseModel):
 # 推理机开发
 @app.post("/process")
 async def process(rule: Rule):
-    arrays = rule.rule.split("+")
-    if len(arrays) == 0:
+    inputs = rule.rule.split("+")
+    if len(inputs) == 0:
         return {"code": "-1", "message": "rule is not correct"}
 
+    rules = get_rules()
+    # python 不支持 do..while, 假定能匹配上
+    flag = 1
+    while flag == 1:
+        print("inputs is: " + str(inputs))
+        flag = match(rules, inputs)
+
+    if flag == 2:
+        data = select_knowledge(inputs[-1])
+    else:
+        data = {"code": -1, "name": "无匹配动物", "type": -1}
+
+    return {"code": "0", "message": "success", "data": data}
+
+
+# 进行匹配
+def match(rules, inputs):
+    # 0:未匹配 1:匹配了中间结果 2:匹配到了最终结果
+    flag = 0
+    for rule in rules:
+        print("rule is: " + str(rule))
+        array = rule["rule"].split("=")
+        left = array[0]
+        right = array[1]
+        left_array = left.split("+")
+        # 计数匹配
+        match_count = 0
+        # 标记匹配元素的下标，后面好删除
+        match_index = []
+        for i, left_value in enumerate(left_array):
+            for value in inputs:
+                # 如果输入值有和规则库中定义一样的
+                if value == left_value:
+                    match_count = match_count + 1
+                    match_index.append(i)
+                    print("match_count: " + str(match_count) + " match_index len: " + str(len(match_index)))
+        # 如果有匹配成功的，删除匹配的节点
+        if match_count == len(left_array):
+            flag = 1
+            for index in reversed(match_index):
+                print("index: " + str(index) + " " + str(match_index))
+                # 删除逻辑有问题
+                inputs.pop(index)
+            # 然后再把匹配的记录加进去
+            if right not in inputs:
+                inputs.append(right)
+            # 判断是不是最终匹配
+            if rule["type"] == 1:
+                flag = 2
+    return flag
+
+
+# 得到所有的规则
+def get_rules():
     conn = db.conn()
     # 查询全部代码
-    result = db.many(conn, "select * from t_rule", ())
+    result = db.many(conn, "select * from t_rule order by position", ())
     rows = []
     if result is not None:
         for row in result:
             rows.append({"code": row[0], "name": row[1], "position": row[2], "type": row[3], "rule": row[4]})
     db.close(conn)
+    return rows
 
-    for row in rows:
 
-
-    return {"code": "0", "message": "success", "data": rows}
+# 单条查询规则对象
+def select_knowledge(code):
+    print("======" + code)
+    conn = db.conn()
+    # 查看添加对象是否存在
+    result = db.select(conn, "select * from t_code where code = ?", (code,))
+    if result is None:
+        return {"code": "-1", "message": "record is not exist"}
+    db.close(conn)
+    return {"code": result[0], "name": result[1], "type": result[2]}
