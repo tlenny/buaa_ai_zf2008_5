@@ -19,6 +19,7 @@ async def root():
 class Knowledge(BaseModel):
     code: Optional[int] = None
     name: Optional[str] = None
+    type: Optional[int] = None
 
 
 # 添加综合数据库
@@ -29,7 +30,7 @@ async def knowledge_add(knowledge: Knowledge):
     result = db.select(conn, "select * from t_code where name = ?", (knowledge.name,))
     if result is not None:
         return {"code": "-1", "message": "the name is already exist, please change a new one"}
-    db.execute(conn, "insert into t_code(name) values (?)", (knowledge.name,))
+    db.execute(conn, "insert into t_code(name, type) values (?, ?)", (knowledge.name, knowledge.type))
     db.close(conn)
     return {"code": "0", "message": "success"}
 
@@ -43,7 +44,7 @@ async def knowledge_select(knowledge: Knowledge):
     if result is None:
         return {"code": "-1", "message": "record is not exist"}
     db.close(conn)
-    return {"code": "0", "message": "success", "data": result}
+    return {"code": "0", "message": "success", "data": {"code": result[0], "name": result[1], "type": result[2]}}
 
 
 # 更新综合数据库
@@ -59,7 +60,21 @@ async def knowledge_update(knowledge: Knowledge):
     if temp is not None and result.code != temp.code:
         return {"code": "-1", "message": "the name is already exist, pls change a new one"}
 
-    db.execute(conn, "update t_code set name = ? where code = ? ", (knowledge.name, knowledge.code))
+    db.execute(conn, "update t_code set name = ?, type = ? where code = ? ",
+               (knowledge.name, knowledge.type, knowledge.code))
+    db.close(conn)
+    return {"code": "0", "message": "success"}
+
+
+# 删除综合数据库
+@app.post("/knowledge/delete")
+async def knowledge_delete(knowledge: Knowledge):
+    conn = db.conn()
+    # 查看添加对象是否存在
+    result = db.select(conn, "select * from t_code where code = ?", (knowledge.code,))
+    if result is None:
+        return {"code": "-1", "message": "record is not exist"}
+    db.execute(conn, "delete from t_code where code = ?", (knowledge.code,))
     db.close(conn)
     return {"code": "0", "message": "success"}
 
@@ -73,22 +88,23 @@ async def knowledge_all():
     rows = []
     if result is not None:
         for row in result:
-            rows.append({"code": row[0], "name": row[1]})
+            rows.append({"code": row[0], "name": row[1], "type": row[2]})
     db.close(conn)
     return {"code": "0", "message": "success", "data": rows}
 
 
 # ---------- rule ----------
 
-# 知识对象
+# 规则对象
 class Rule(BaseModel):
     code: Optional[int] = None
     name: Optional[str] = None
     position: Optional[int] = None
+    type: Optional[int] = None
     rule: Optional[str] = None
 
 
-# 添加综合数据库
+# 添加规则对象
 @app.post("/rule/save")
 async def rule_add(rule: Rule):
     conn = db.conn()
@@ -96,12 +112,13 @@ async def rule_add(rule: Rule):
     result = db.select(conn, "select * from t_rule where name = ?", (rule.name,))
     if result is not None:
         return {"code": "-1", "message": "the name is already exist, please change a new one"}
-    db.execute(conn, "insert into t_rule(name, position, rule) values (?, ?, ?)", (rule.name, rule.position, rule.rule))
+    db.execute(conn, "insert into t_rule(name, position, type, rule) values (?, ?, ?, ?)",
+               (rule.name, rule.position, rule.type, rule.rule))
     db.close(conn)
     return {"code": "0", "message": "success"}
 
 
-# 单条查询综合数据库
+# 单条查询规则对象
 @app.post("/rule/select")
 async def rule_select(rule: Rule):
     conn = db.conn()
@@ -110,10 +127,11 @@ async def rule_select(rule: Rule):
     if result is None:
         return {"code": "-1", "message": "record is not exist"}
     db.close(conn)
-    return {"code": "0", "message": "success", "data": result}
+    return {"code": "0", "message": "success",
+            "data": {"code": result[0], "name": result[1], "position": result[2], "type": result[3], "rule": result[4]}}
 
 
-# 更新综合数据库
+# 更新规则对象
 @app.post("/rule/update")
 async def rule_update(rule: Rule):
     conn = db.conn()
@@ -126,7 +144,21 @@ async def rule_update(rule: Rule):
     if temp is not None and result.code != temp.code:
         return {"code": "-1", "message": "the name is already exist, pls change a new one"}
 
-    db.execute(conn, "update t_rule set name = ? where code = ? ", (rule.name, rule.code))
+    db.execute(conn, "update t_rule set name = ?, position = ?, type = ? where code = ? ",
+               (rule.name, rule.position, rule.type, rule.code))
+    db.close(conn)
+    return {"code": "0", "message": "success"}
+
+
+# 删除规则对象
+@app.post("/rule/delete")
+async def rule_delete(rule: Rule):
+    conn = db.conn()
+    # 查看添加对象是否存在
+    result = db.select(conn, "select * from t_rule where code = ?", (rule.code,))
+    if result is None:
+        return {"code": "-1", "message": "record is not exist"}
+    db.execute(conn, "delete from t_rule where code = ?", (rule.code,))
     db.close(conn)
     return {"code": "0", "message": "success"}
 
@@ -140,6 +172,6 @@ async def rule_all():
     rows = []
     if result is not None:
         for row in result:
-            rows.append({"code": row[0], "name": row[1], "position": row[2], "rule": row[4]})
+            rows.append({"code": row[0], "name": row[1], "position": row[2], "type": row[3], "rule": row[4]})
     db.close(conn)
     return {"code": "0", "message": "success", "data": rows}
