@@ -175,3 +175,32 @@ async def rule_all():
             rows.append({"code": row[0], "name": row[1], "position": row[2], "type": row[3], "rule": row[4]})
     db.close(conn)
     return {"code": "0", "message": "success", "data": rows}
+
+
+# ---------- process ----------
+
+# 规则对象
+class SubmitRule(BaseModel):
+    rule: str
+
+
+# 推理机开发
+@app.post("/process")
+async def process(rule: Rule):
+    arrays = rule.rule.split("+")
+    if len(arrays) == 0:
+        return {"code": "-1", "message": "rule is not correct"}
+
+    conn = db.conn()
+    # 查询全部代码
+    result = db.many(conn, "select * from t_rule", ())
+    rows = []
+    if result is not None:
+        for row in result:
+            rows.append({"code": row[0], "name": row[1], "position": row[2], "type": row[3], "rule": row[4]})
+    db.close(conn)
+
+    for row in rows:
+
+
+    return {"code": "0", "message": "success", "data": rows}
