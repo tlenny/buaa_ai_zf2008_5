@@ -195,7 +195,6 @@ async def process(rule: Rule):
     # python 不支持 do..while, 假定能匹配上
     flag = 1
     while flag == 1:
-        print("inputs is: " + str(inputs))
         flag = match(rules, inputs)
 
     if flag == 2:
@@ -211,7 +210,6 @@ def match(rules, inputs):
     # 0:未匹配 1:匹配了中间结果 2:匹配到了最终结果
     flag = 0
     for rule in rules:
-        print("rule is: " + str(rule))
         array = rule["rule"].split("=")
         left = array[0]
         right = array[1]
@@ -221,17 +219,15 @@ def match(rules, inputs):
         # 标记匹配元素的下标，后面好删除
         match_index = []
         for i, left_value in enumerate(left_array):
-            for value in inputs:
+            for j, value in enumerate(inputs):
                 # 如果输入值有和规则库中定义一样的
                 if value == left_value:
                     match_count = match_count + 1
-                    match_index.append(i)
-                    print("match_count: " + str(match_count) + " match_index len: " + str(len(match_index)))
+                    match_index.append(j)
         # 如果有匹配成功的，删除匹配的节点
         if match_count == len(left_array):
             flag = 1
             for index in reversed(match_index):
-                print("index: " + str(index) + " " + str(match_index))
                 # 删除逻辑有问题
                 inputs.pop(index)
             # 然后再把匹配的记录加进去
@@ -258,7 +254,6 @@ def get_rules():
 
 # 单条查询规则对象
 def select_knowledge(code):
-    print("======" + code)
     conn = db.conn()
     # 查看添加对象是否存在
     result = db.select(conn, "select * from t_code where code = ?", (code,))
@@ -266,3 +261,20 @@ def select_knowledge(code):
         return {"code": "-1", "message": "record is not exist"}
     db.close(conn)
     return {"code": result[0], "name": result[1], "type": result[2]}
+
+
+# 单元测试
+if __name__ == '__main__':
+    inputs = "1+9+12".split("+")
+    rules = get_rules()
+    # python 不支持 do..while, 假定能匹配上
+    flag = 1
+    while flag == 1:
+        print("inputs is: " + str(inputs))
+        flag = match(rules, inputs)
+
+    if flag == 2:
+        data = select_knowledge(inputs[-1])
+    else:
+        data = {"code": -1, "name": "无匹配动物", "type": -1}
+    print(data)
