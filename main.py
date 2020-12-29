@@ -227,7 +227,9 @@ def match(rules, inputs):
         # 如果有匹配成功的，删除匹配的节点
         if match_count == len(left_array):
             flag = 1
-            for index in reversed(match_index):
+            # 对数据排序
+            match_index.sort(reverse=True)
+            for index in match_index:
                 # 删除逻辑有问题
                 inputs.pop(index)
             # 然后再把匹配的记录加进去
@@ -265,16 +267,17 @@ def select_knowledge(code):
 
 # 单元测试
 if __name__ == '__main__':
-    inputs = "1+9+12".split("+")
-    rules = get_rules()
+    _inputs = "1+9+12".split("+")
+    # _inputs = "4+19".split("+")
+    _rules = get_rules()
     # python 不支持 do..while, 假定能匹配上
-    flag = 1
-    while flag == 1:
-        print("inputs is: " + str(inputs))
-        flag = match(rules, inputs)
+    _flag = 1
+    while _flag == 1:
+        print("inputs is: " + str(_inputs))
+        _flag = match(_rules, _inputs)
 
-    if flag == 2:
-        data = select_knowledge(inputs[-1])
+    if _flag == 2:
+        data = select_knowledge(_inputs[-1])
     else:
         data = {"code": -1, "name": "无匹配动物", "type": -1}
     print(data)
