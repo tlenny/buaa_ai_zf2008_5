@@ -4,11 +4,12 @@ from pydantic import BaseModel
 from typing import Optional
 import db
 
+BASE_PATH = "/api"
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-@app.get("/")
+@app.get(BASE_PATH)
 async def root():
     return {"message": "Hello World"}
 
@@ -23,7 +24,7 @@ class Knowledge(BaseModel):
 
 
 # 添加综合数据库
-@app.post("/knowledge/save")
+@app.post(BASE_PATH + "/knowledge/save")
 async def knowledge_add(knowledge: Knowledge):
     conn = db.conn()
     # 如何已经存在就不用再添加了
@@ -36,7 +37,7 @@ async def knowledge_add(knowledge: Knowledge):
 
 
 # 单条查询综合数据库
-@app.post("/knowledge/select")
+@app.post(BASE_PATH + "/knowledge/select")
 async def knowledge_select(knowledge: Knowledge):
     conn = db.conn()
     # 查看添加对象是否存在
@@ -48,7 +49,7 @@ async def knowledge_select(knowledge: Knowledge):
 
 
 # 更新综合数据库
-@app.post("/knowledge/update")
+@app.post(BASE_PATH + "/knowledge/update")
 async def knowledge_update(knowledge: Knowledge):
     conn = db.conn()
     # 查看编辑对象是否存在
@@ -67,7 +68,7 @@ async def knowledge_update(knowledge: Knowledge):
 
 
 # 删除综合数据库
-@app.post("/knowledge/delete")
+@app.post(BASE_PATH + "/knowledge/delete")
 async def knowledge_delete(knowledge: Knowledge):
     conn = db.conn()
     # 查看添加对象是否存在
@@ -80,7 +81,7 @@ async def knowledge_delete(knowledge: Knowledge):
 
 
 # 查询全部的综合数据库列表
-@app.post("/knowledge/all")
+@app.post(BASE_PATH + "/knowledge/all")
 async def knowledge_all():
     conn = db.conn()
     # 查询全部代码
@@ -105,7 +106,7 @@ class Rule(BaseModel):
 
 
 # 添加规则对象
-@app.post("/rule/save")
+@app.post(BASE_PATH + "/rule/save")
 async def rule_add(rule: Rule):
     conn = db.conn()
     # 如何已经存在就不用再添加了
@@ -119,7 +120,7 @@ async def rule_add(rule: Rule):
 
 
 # 单条查询规则对象
-@app.post("/rule/select")
+@app.post(BASE_PATH + "/rule/select")
 async def rule_select(rule: Rule):
     conn = db.conn()
     # 查看添加对象是否存在
@@ -132,7 +133,7 @@ async def rule_select(rule: Rule):
 
 
 # 更新规则对象
-@app.post("/rule/update")
+@app.post(BASE_PATH + "/rule/update")
 async def rule_update(rule: Rule):
     conn = db.conn()
     # 查看编辑对象是否存在
@@ -151,7 +152,7 @@ async def rule_update(rule: Rule):
 
 
 # 删除规则对象
-@app.post("/rule/delete")
+@app.post(BASE_PATH + "/rule/delete")
 async def rule_delete(rule: Rule):
     conn = db.conn()
     # 查看添加对象是否存在
@@ -164,7 +165,7 @@ async def rule_delete(rule: Rule):
 
 
 # 查询全部的综合数据库列表
-@app.post("/rule/all")
+@app.post(BASE_PATH + "/rule/all")
 async def rule_all():
     conn = db.conn()
     # 查询全部代码
