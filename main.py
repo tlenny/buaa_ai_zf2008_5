@@ -53,12 +53,12 @@ async def knowledge_select(knowledge: Knowledge):
 async def knowledge_update(knowledge: Knowledge):
     conn = db.conn()
     # 查看编辑对象是否存在
-    result = db.select(conn, "select * from t_code where code = ?", (knowledge.code,))
+    result = db.select(conn, "select code from t_code where code = ?", (knowledge.code,))
     if result is None:
         return {"code": "-1", "message": "record is not exist"}
 
-    temp = db.select(conn, "select * from t_code where name = ?", (knowledge.name,))
-    if temp is not None and result.code != temp.code:
+    temp = db.select(conn, "select code from t_code where name = ?", (knowledge.name,))
+    if temp is not None and result[0] != temp[0]:
         return {"code": "-1", "message": "the name is already exist, pls change a new one"}
 
     db.execute(conn, "update t_code set name = ?, type = ? where code = ? ",
@@ -146,12 +146,12 @@ async def rule_select(rule: Rule):
 async def rule_update(rule: Rule):
     conn = db.conn()
     # 查看编辑对象是否存在
-    result = db.select(conn, "select * from t_rule where code = ?", (rule.code,))
+    result = db.select(conn, "select code from t_rule where code = ?", (rule.code,))
     if result is None:
         return {"code": "-1", "message": "record is not exist"}
 
-    temp = db.select(conn, "select * from t_rule where name = ?", (rule.name,))
-    if temp is not None and result.code != temp.code:
+    temp = db.select(conn, "select code from t_rule where name = ?", (rule.name,))
+    if temp is not None and result[0] != temp[0]:
         return {"code": "-1", "message": "the name is already exist, pls change a new one"}
 
     db.execute(conn, "update t_rule set name = ?, position = ?, type = ? where code = ? ",
