@@ -82,10 +82,19 @@ async def knowledge_delete(knowledge: Knowledge):
 
 # 查询全部的综合数据库列表
 @app.post(BASE_PATH + "/knowledge/all")
-async def knowledge_all():
+async def knowledge_all(knowledge: Knowledge):
     conn = db.conn()
     # 查询全部代码
-    result = db.many(conn, "select * from t_code", ())
+    params = []
+    sql = "select * from t_code where 1=1 "
+    if knowledge.name is not None:
+        sql += " and name like ? "
+        params.append("%" + knowledge.name + "%")
+    if knowledge.type is not None:
+        sql += " and type = ? "
+        params.append(knowledge.type)
+
+    result = db.many(conn, sql, tuple(params))
     rows = []
     if result is not None:
         for row in result:
@@ -166,10 +175,20 @@ async def rule_delete(rule: Rule):
 
 # 查询全部的综合数据库列表
 @app.post(BASE_PATH + "/rule/all")
-async def rule_all():
+async def rule_all(rule: Rule):
     conn = db.conn()
     # 查询全部代码
-    result = db.many(conn, "select * from t_rule order by position", ())
+
+    params = []
+    sql = "select * from t_rule where 1=1 "
+    if rule.name is not None:
+        sql += " and name like ? "
+        params.append("%" + rule.name + "%")
+    if rule.type is not None:
+        sql += " and type = ? "
+        params.append(rule.type)
+    sql += " order by position"
+    result = db.many(conn, sql, tuple(params))
     rows = []
     if result is not None:
         for row in result:
