@@ -154,8 +154,8 @@ async def rule_update(rule: Rule):
     if temp is not None and result[0] != temp[0]:
         return {"code": "-1", "message": "the name is already exist, pls change a new one"}
 
-    db.execute(conn, "update t_rule set name = ?, position = ?, type = ? where code = ? ",
-               (rule.name, rule.position, rule.type, rule.code))
+    db.execute(conn, "update t_rule set name = ?, position = ?, type = ?, rule = ? where code = ? ",
+               (rule.name, rule.position, rule.type, rule.rule, rule.code))
     db.close(conn)
     return {"code": "0", "message": "success"}
 
