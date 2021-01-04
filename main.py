@@ -205,7 +205,7 @@ class SubmitRule(BaseModel):
 
 
 # 推理机开发
-@app.post("/process")
+@app.post(BASE_PATH + "/process")
 async def process(rule: Rule):
     inputs = rule.rule.split("+")
     if len(inputs) == 0:
