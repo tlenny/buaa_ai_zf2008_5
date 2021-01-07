@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -286,7 +287,7 @@ def select_knowledge(code):
 
 
 # 单元测试
-if __name__ == '__main__':
+def test():
     _inputs = "1+9+12".split("+")
     # _inputs = "4+19".split("+")
     _rules = get_rules()
@@ -301,3 +302,9 @@ if __name__ == '__main__':
     else:
         data = {"code": -1, "name": "无匹配动物", "type": -1}
     print(data)
+
+
+if __name__ == "__main__":
+    # test()
+    # 如果需要本地调试，可以通过启用uvicorn来进行
+    uvicorn.run(app, host="0.0.0.0", port=8000)
