@@ -1,8 +1,10 @@
+from typing import Optional
+
 import uvicorn
 from fastapi import FastAPI
-from starlette.staticfiles import StaticFiles
 from pydantic import BaseModel
-from typing import Optional
+from starlette.staticfiles import StaticFiles
+
 import db
 
 BASE_PATH = "/api"
@@ -306,5 +308,5 @@ def test():
 
 if __name__ == "__main__":
     # test()
-    # 如果需要本地调试，可以通过启用uvicorn来进行
+    # 如果需要本地调试，可以通过启用uvicorn方便进行调试
     uvicorn.run(app, host="0.0.0.0", port=8000)
